@@ -11,7 +11,8 @@ class JokeList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      jokes: JSON.parse(window.localStorage.getItem("jokes") || "[]")
+      jokes: JSON.parse(window.localStorage.getItem("jokes") || "[]"),
+      loading: false
     };
     this.handleClick = this.handleClick.bind(this);
   }
@@ -29,6 +30,7 @@ class JokeList extends Component {
     }
     this.setState(
       st => ({
+        loading: false,
         jokes: [...st.jokes, ...jokes]
       }),
       () =>
@@ -48,34 +50,43 @@ class JokeList extends Component {
     );
   }
   handleClick() {
-    this.getJokes();
+    this.setState({ loading: true }, () => this.getJokes());
   }
   render() {
-    return (
-      <div className="JokeList">
-        <div className="JokeList-sidebar">
-          <h1 className="JokeList-title">
-            <span>Dad</span> Jokes
-          </h1>
-          <img />
-          <button className="JokeList-getmore" onClick={this.handleClick}>
-            New Jokes
-          </button>
+    if (this.state.loading) {
+      return (
+        <div className="Jokelist-spinner">
+          <i className="far fa-8x fa-laugh fa-spin" />
+          <h1 className="Jokelist-title">Loading...</h1>
         </div>
-        <div className="JokeList-jokes">
-          {this.state.jokes.map(j => (
-            <div>
-              <Joke
-                votes={j.votes}
-                text={j.joke}
-                upvote={() => this.handleVote(j.id, 1)}
-                downvote={() => this.handleVote(j.id, -1)}
-              />
-            </div>
-          ))}
+      );
+    } else {
+      return (
+        <div className="JokeList">
+          <div className="JokeList-sidebar">
+            <h1 className="JokeList-title">
+              <span>Dad</span> Jokes
+            </h1>
+            <img />
+            <button className="JokeList-getmore" onClick={this.handleClick}>
+              New Jokes
+            </button>
+          </div>
+          <div className="JokeList-jokes">
+            {this.state.jokes.map(j => (
+              <div>
+                <Joke
+                  votes={j.votes}
+                  text={j.joke}
+                  upvote={() => this.handleVote(j.id, 1)}
+                  downvote={() => this.handleVote(j.id, -1)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 }
 
